@@ -278,7 +278,7 @@ DeepLabV3 — это мощная модель глубокого обучени
 
     ├── **BackFreeBot_folderId_Mask_DeepLabV3/** # Маски DeepLabV3 - папка с файлами для обучения и создание маски   
         └── имя файлов 100004_27.09.2024_22.05_deeplabv3.png     
-    ├── **deeplabv3_resnet101.pth** - Эта ссылка направит пользователей на файл предобученной модели DeepLabV3 с использованием ResNet-101.  
+    ├── **deeplabv3_resnet101.pth** - предобученная модель DeepLabV3 с использованием ResNet-101.  
     ├── **model_training_counter.txt**  - счетчик запусков (автоматизация сделал каждые 10 раз) для обучения модили deeplabv3_resnet101    
     └── **pytorch/vision:v0.10.0** — это версия Docker-образа, содержащая PyTorch и библиотеку torchvision версии 0.10.0. Этот образ включает в себя все необходимые зависимости для работы с нейронными сетями и задачами компьютерного зрения, такими как загрузка и предобработка изображений, а также использование предобученных моделей для классификации, детекции объектов и сегментации.    
 
@@ -393,8 +393,8 @@ def get_segmentation_mask(image_path):
     return masks, input_image
 
 # Основной цикл обработки изображений
-image_dir = '/content/drive/My Drive/BackFreeBot_CV/BackFreeBot_folderId_Photo'
-mask_deeplabv3_dir = '/content/drive/My Drive/BackFreeBot_CV/BackFreeBot_folderId_Mask_DeepLabV3'
+image_dir = '/BackFreeBot_CV/BackFreeBot_folderId_Photo'
+mask_deeplabv3_dir = '/BackFreeBot_CV/BackFreeBot_folderId_Mask_DeepLabV3'
 
 # Создаем директорию для масок DeepLabV3, если она не существует
 if not os.path.exists(mask_deeplabv3_dir):
