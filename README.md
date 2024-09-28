@@ -39,7 +39,7 @@
     └── имя файлов mask_grab_100001_27.09.2024_22.05.png
     
 ├── **BackFreeBot_folderId_Mask_Grab_Mirroredy/** # Зеркальные маски Grab - Данные для обучения и тестирования, создание маски  
-    └── имя файлов.jpg или .png  
+    └── имя файлов mask_grab_mirrored_100001_27.09.2024_22.05.png  
     
 ├── **BackFreeBot_folderId_Mask_DeepLabV3/** # Маски DeepLabV3 - Данные для обучения и тестирования, создание маски   
     └── имя файлов.jpg или .png  
