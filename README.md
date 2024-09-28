@@ -33,7 +33,7 @@
 ├── BackFreeBot_folderId_Mask_Canny/ # Маски Canny - Данные для обучения и тестирования, создание маски  
     └── имя файлов.jpg или .png  
     
-├── BackFreeBot_folderId_Mask_Grab/ # Маски Grab - Данные для обучения и тестирования, создание маски 
+├── BackFreeBot_folderId_Mask_Grab/ # Маски Grab - Данные для обучения и тестирования, создание маски  
     └── имя файлов.jpg или .png   
     
 ├── BackFreeBot_folderId_Mask_Grab_Mirroredy/ # Зеркальные маски Grab - Данные для обучения и тестирования, создание маски  
