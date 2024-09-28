@@ -255,9 +255,9 @@ for image_file in os.listdir(image_dir):
 
 print("Маски canny успешно сгенерированы.")
 ```
-# ШАГ 3 🤖🖥️ BackFreeBot_folderId_Mask_DeepLabV3
-
-🖼️🔍 DeepLabV3: Продвинутый мастер сегментации изображений  
+# ШАГ 4 🤖🖥️ BackFreeBot_folderId_Mask_DeepLabV3  
+## ШАГ 4.1  Сгенерировать маски DeepLabV3  
+🖼️🔍 DeepLabV3: Продвинутый мастер сегментации изображений   
 
 DeepLabV3 — это мощная модель глубокого обучения, созданная для сегментации изображений на уровне пикселей. Она позволяет выделять объекты на изображении с высокой точностью, разделяя его на отдельные классы.  [Скачать deeplabv3_resnet101.pth](https://download.pytorch.org/models/deeplabv3_resnet101_coco-586e8e8f.pth)  
 
@@ -437,4 +437,105 @@ for image_file in os.listdir(image_dir):
             print(f"Сохранена комбинированная маска {dominant_class} для {image_file}: {save_path}")
 
 print("Маски DeepLabV3 успешно сгенерированы.")
+```
+## ШАГ 4.2 обучение модели deeplabv3_resnet101
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, Dataset
+import torchvision.transforms as T
+from PIL import Image
+import os
+
+# Триггер для запуска обучения модели
+should_train_model = True  # Измените на False, чтобы пропустить обучение
+
+# Путь для сохранения и загрузки модели
+model_save_path = '/BackFreeBot_CV/deeplabv3_resnet101.pth'
+
+# Функция для загрузки модели из сохраненного состояния
+def load_model(model_path, device):
+    model = torch.hub.load('pytorch/vision:v0.10.0', 'deeplabv3_resnet101', pretrained=False)
+    state_dict = torch.load(model_path, map_location=device)
+    model.load_state_dict(state_dict, strict=False)  # strict=False, чтобы игнорировать несовпадающие слои
+    model.to(device)
+    return model
+
+# Кастомный датасет для ваших данных
+class CustomSegmentationDataset(Dataset):
+    def __init__(self, image_dir, mask_dir, transform=None):
+        self.image_dir = image_dir
+        self.mask_dir = mask_dir
+        self.transform = transform
+        self.images = [file for file in os.listdir(image_dir) if file.endswith('.jpg')]
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image_path = os.path.join(self.image_dir, self.images[idx])
+        mask_path = os.path.join(self.mask_dir, os.path.splitext(self.images[idx])[0] + '_mask.png')
+
+        image = Image.open(image_path).convert("RGB")
+        mask = Image.open(mask_path).convert("L")  # Маска в градациях серого
+
+        if self.transform:
+            image = self.transform(image)
+            mask = T.ToTensor()(mask).long()  # Преобразуем маску в тензор
+
+        return image, mask
+
+# Преобразования для изображений и масок
+transform = T.Compose([
+    T.ToTensor(),
+    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
+# Путь к изображениям и маскам
+image_dir = '/BackFreeBot_CV/BackFreeBot_folderId_Photo'
+mask_dir = '/BackFreeBot_CV/BackFreeBot_folderId_Mask_DeepLabV3'
+
+if should_train_model:
+    # Создание датасета и загрузчика данных
+    dataset = CustomSegmentationDataset(image_dir=image_dir, mask_dir=mask_dir, transform=transform)
+    data_loader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=2)
+
+    # Загрузка модели на устройство (GPU или CPU)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = load_model(model_save_path, device)
+
+    # Определение функции потерь и оптимизатора
+    criterion = nn.CrossEntropyLoss()  # Функция потерь для многоклассовой сегментации
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
+
+    # Количество эпох для дообучения
+    num_epochs = 10
+
+    # Цикл дообучения
+    for epoch in range(num_epochs):
+        model.train()
+        running_loss = 0.0
+
+        for images, masks in data_loader:
+            images, masks = images.to(device), masks.to(device)
+
+            optimizer.zero_grad()
+
+            outputs = model(images)['out']
+            loss = criterion(outputs, masks.squeeze(1))  # Сжимаем размерность маски для функции потерь
+
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+
+        print(f"Эпоха [{epoch + 1}/{num_epochs}], Потери: {running_loss / len(data_loader)}")
+
+    # Сохранение дообученной модели
+    torch.save(model.state_dict(), model_save_path)
+    print(f"Дообученная модель успешно сохранена в {model_save_path}")
+else:
+    print("Обучение модели пропущено.")
 ```
