@@ -55,7 +55,9 @@
     
 ├── **user_id_timestamp.ipynb**- notebooks/  # Jupyter ноутбук с кодом  
 
-└── **unet_model.pth** - models/ # Сохраненная модель   
+├── **unet_model.pth** - models/ # Сохраненная модель  
+
+├── **deeplabv3_resnet101.pth** - models/ # Сохраненная модель для DeepLabV3
 
 ├── **README.md**  # файл с описанем, и вы это читаете.
 
