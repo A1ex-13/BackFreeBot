@@ -678,5 +678,45 @@ for image_file in os.listdir(image_dir):
 Чтобы добавить текст " " на изображения в выходной папке, буду использовать 
 
 ```python
+import os
+import cv2
 
+# Укажите директорию и имя файла
+output_dir = '/BackFreeBot_CV/BackFreeBot_folderId_Finish'  # Путь к папке
+image_filename = 'processed_100070_27.09.2024_22.05.png'  # Имя файла
+image_path = os.path.join(output_dir, image_filename)
+
+# Отладочный вывод
+print(f"Путь к изображению: {image_path}")
+
+# Проверка существования файла
+if os.path.exists(image_path):
+    print("Файл существует.")
+else:
+    print("Файл не найден.")
+
+# Загружаем изображение
+image = cv2.imread(image_path)
+if image is None:
+    print(f"Не удалось загрузить изображение: {image_path}")
+else:
+    # Определяем текст и его параметры
+    text = "A1ex-13"
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 1
+    color = (255, 255, 255)  # Белый цвет
+    thickness = 2
+    position = (50, 50)  # Позиция текста на изображении
+
+    # Добавляем текст на изображение
+    cv2.putText(image, text, position, font, font_scale, color, thickness)
+
+    # Сохраняем результат
+    save_path = os.path.join(output_dir, f"annotated_{image_filename}")
+    cv2.imwrite(save_path, image)
+    print(f"Изображение сохранено: {save_path}")
 ```
+![@BackFree_Bot](https://github.com/A1ex-13/BackFreeBot/blob/main/annotated_processed_100070_27.09.2024_22.05.png)  
+
+30.09.2024
+
