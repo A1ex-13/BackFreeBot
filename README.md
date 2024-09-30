@@ -557,5 +557,121 @@ U-Net — это популярная модель для сегментации
 🚗 Автономное вождение: Разметка дорог и дорожных объектов.  
 
 ```python
+import os
+import torch
+import torch.nn as nn
+import numpy as np
+import cv2
+from PIL import Image
 
+# Определение модели U-Net
+class UNet(nn.Module):
+    def __init__(self, in_channels=3, out_channels=1):
+        super(UNet, self).__init__()
+        # Кодер
+        self.encoder1 = self.conv_block(in_channels, 64)
+        self.encoder2 = self.conv_block(64, 128)
+        self.encoder3 = self.conv_block(128, 256)
+        self.encoder4 = self.conv_block(256, 512)
+        # Буттленек
+        self.bottleneck = self.conv_block(512, 1024)
+        # Декодер
+        self.decoder4 = self.upconv_block(1024 + 512, 512)
+        self.decoder3 = self.upconv_block(512 + 256, 256)
+        self.decoder2 = self.upconv_block(256 + 128, 128)
+        self.decoder1 = self.upconv_block(128 + 64, 64)
+        # Финальная свертка
+        self.final_conv = nn.Conv2d(64, out_channels, kernel_size=1)
+
+    def conv_block(self, in_channels, out_channels):
+        return nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2)
+        )
+
+    def upconv_block(self, in_channels, out_channels):
+        return nn.Sequential(
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True)
+        )
+
+    def forward(self, x):
+        e1 = self.encoder1(x)
+        e2 = self.encoder2(e1)
+        e3 = self.encoder3(e2)
+        e4 = self.encoder4(e3)
+        b = self.bottleneck(e4)
+        d4 = self.decoder4(torch.cat((b, self.crop_tensor(e4, b)), dim=1))
+        d3 = self.decoder3(torch.cat((d4, self.crop_tensor(e3, d4)), dim=1))
+        d2 = self.decoder2(torch.cat((d3, self.crop_tensor(e2, d3)), dim=1))
+        d1 = self.decoder1(torch.cat((d2, self.crop_tensor(e1, d2)), dim=1))
+        return self.final_conv(d1)
+
+    def crop_tensor(self, encoder_tensor, decoder_tensor):
+        diffY = encoder_tensor.size()[2] - decoder_tensor.size()[2]
+        diffX = encoder_tensor.size()[3] - decoder_tensor.size()[3]
+        return encoder_tensor[:, :, diffY // 2: encoder_tensor.size()[2] - diffY // 2,
+                             diffX // 2: encoder_tensor.size()[3] - diffX // 2]
+
+# Функция для загрузки модели
+def load_model(model_path, device):
+    model = UNet(in_channels=3, out_channels=1)  # Убедитесь, что это соответствует архитектуре, используемой для обучения
+    state_dict = torch.load(model_path, map_location=device)
+    model.load_state_dict(state_dict, strict=False)  # Загрузите state_dict с параметром strict=False, чтобы игнорировать недостающие/неожиданные ключи
+    model.to(device)
+    model.eval()  # Установите модель в режим оценки
+    return model
+
+# Основной цикл обработки изображений
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# Укажите директории для модели и изображений
+model_save_path = '/BackFreeBot_CV/unet.pth'  # Путь к модели
+image_dir = '/BackFreeBot_CV/BackFreeBot_folderId_Photo'  # Папка с изображениями
+mask_grab_dir = '/BackFreeBot_CV/BackFreeBot_folderId_Mask_Grab'  # Папка с масками
+output_dir = '/BackFreeBot_CV/BackFreeBot_folderId_Finish'  # Папка для результатов
+
+# Загрузка модели
+model = load_model(model_save_path, device)
+
+# Создание директории для сохранения результатов, если она не существует
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+# Обрабатываем изображения в папке
+for image_file in os.listdir(image_dir):
+    if image_file.endswith('.jpg') or image_file.endswith('.png'):
+        image_path = os.path.join(image_dir, image_file)
+
+        # Загружаем оригинальное изображение
+        original_image = cv2.imread(image_path)
+        if original_image is None:
+            print(f"Не удалось загрузить изображение: {image_path}")
+            continue  # Пропускаем и продолжаем
+
+        # Формируем имя маски
+        mask_file = os.path.join(mask_grab_dir, f'mask_grab_{os.path.splitext(image_file)[0]}.png')
+        
+        print(f"Попытка загрузить маску: {mask_file}")  # Для отладки
+        mask = cv2.imread(mask_file, cv2.IMREAD_GRAYSCALE)  # Загружаем маску как grayscale
+        if mask is None:
+            print(f"Не удалось загрузить маску: {mask_file}")
+            continue  # Пропускаем, если маска не найдена
+
+        # Замена фона на зеленый цвет
+        output_image = original_image.copy()
+        output_image[mask == 0] = [0, 255, 0]  # Заменяем фон на зеленый
+
+        # Сохраняем результат
+        output_filename = f'processed_{os.path.splitext(image_file)[0]}.png'
+        save_path = os.path.join(output_dir, output_filename)
+        cv2.imwrite(save_path, output_image)
+        print(f"Изображение сохранено: {save_path}")
 ```
+
