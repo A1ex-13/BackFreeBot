@@ -55,13 +55,15 @@
     
 ├── **user_id_timestamp.ipynb**- notebooks/  # Jupyter ноутбук с кодом  
 
-├── **unet_model.pth** - models/ # Сохраненная модель  
+├── **unet.pth** - models/ # Сохраненная модель  
 
 ├── **deeplabv3_resnet101.pth** - models/ # Сохраненная модель для DeepLabV3
 
 ├── **README.md**  # файл с описанем, и вы это читаете.
 
 ├── **model_training_counter.txt**  - счетчик запусков (я сделал каждые 10 раз) для обучения модили deeplabv3_resnet101
+
+├── **annotated_processed_100070_27.09.2024_22.05.png**   - добавить текст на фото
 
 └── **photo_2024-09-21_10-14-38.jpg** # 
 
