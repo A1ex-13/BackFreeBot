@@ -1,4 +1,4 @@
-# BackFreeBot - бот для удаления фона с изображения
+# BackFreeBot - бот для удаления фона с изображения ( нахожусь на стадии 🎨 )
 
 ![@BackFree_Bot](https://github.com/A1ex-13/BackFreeBot/blob/main/photo_2024-09-21_10-14-38.jpg)  
 🔗 [@BackFree_Bot](https://t.me/BackFree_Bot)
