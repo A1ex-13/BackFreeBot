@@ -350,7 +350,7 @@ if should_train_model:
     model = torch.hub.load('pytorch/vision:v0.10.0', 'deeplabv3_resnet101', pretrained=True)
     model.to(device)
     
-    # Сохранение модели в указанную директорию на Google Диске
+    # Сохранение модели в указанную директорию
     torch.save(model.state_dict(), model_save_path)
     print(f"Модель успешно обучена и сохранена в {model_save_path}")
 else:
