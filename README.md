@@ -214,7 +214,7 @@ import os
 import cv2
 import numpy as np
 
-# Указываем путь к папке на Google Диске
+# Указываем путь к папке 
 image_dir = '/BackFreeBot_CV/BackFreeBot_folderId_Photo'
 mask_canny_dir = '/BackFreeBot_CV/BackFreeBot_folderId_Mask_Canny'
 
