@@ -85,7 +85,7 @@ directories = {
     "image_dir": '/BackFreeBot_CV/BackFreeBot_folderId_Photo',
     "mask_grab_dir": '/BackFreeBot_CV/BackFreeBot_folderId_Mask_Grab',
     "mask_grab_mirrored_dir": '/BackFreeBot_CV/BackFreeBot_folderId_Mask_Grab_Mirrored',
-    "mask_canny_dir": '//BackFreeBot_CV/BackFreeBot_folderId_Mask_Canny',
+    "mask_canny_dir": '/BackFreeBot_CV/BackFreeBot_folderId_Mask_Canny',
     "mask_deeplabv3_dir": '/BackFreeBot_CV/BackFreeBot_folderId_Mask_DeepLabV3',
     "mask_combined_dir": '/BackFreeBot_CV/BackFreeBot_folderId_Mask_Combined',
     "image_resolt_dir": '/BackFreeBot_CV/BackFreeBot_folderId_Resolt',
